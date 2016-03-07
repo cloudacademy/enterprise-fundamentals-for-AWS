@@ -1,0 +1,207 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "This template creates an High Available VPC with 2 Private and 2 Public Subnets. It does NOT create a NAT gateway or any NAT instances for you.",
+    "Parameters": {},
+    "Mappings": {},
+    "Resources": {
+        "VPC": {
+            "Type": "AWS::EC2::VPC",
+            "Properties": {
+                "CidrBlock": "192.168.0.0/16",
+                "Tags": [{
+                    "Key": "Name",
+                    "Value": "Enterprise VPC"
+                }]
+            }
+        },
+        "PublicSubnet": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "VPC"
+                },
+                "CidrBlock": "192.168.222.0/24",
+                "AvailabilityZone": {
+                    "Fn::Select": [
+                        0, {
+                            "Fn::GetAZs": ""
+                        }
+                    ]
+                },
+                "Tags": [{
+                    "Key": "Name",
+                    "Value": "Public 1 Subnet"
+                }]
+            }
+        },
+        "Public2Subnet": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "VPC"
+                },
+                "CidrBlock": "192.168.223.0/24",
+                "AvailabilityZone": {
+                    "Fn::Select": [
+                        1, {
+                            "Fn::GetAZs": ""
+                        }
+                    ]
+                },
+                "Tags": [{
+                    "Key": "Name",
+                    "Value": "Public 2 Subnet"
+                }]
+            }
+        },
+        "PrivateSubnet1": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "VPC"
+                },
+                "CidrBlock": "192.168.111.0/24",
+                "AvailabilityZone": {
+                    "Fn::Select": [
+                        0, {
+                            "Fn::GetAZs": ""
+                        }
+                    ]
+                },
+                "Tags": [{
+                    "Key": "Name",
+                    "Value": "Private 1 Subnet"
+                }]
+            }
+        },
+        "PrivateSubnet2": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "VPC"
+                },
+                "CidrBlock": "192.168.112.0/24",
+                "AvailabilityZone": {
+                    "Fn::Select": [
+                        1, {
+                            "Fn::GetAZs": ""
+                        }
+                    ]
+                },
+                "Tags": [{
+                    "Key": "Name",
+                    "Value": "Private 2 Subnet"
+                }]
+            }
+        },
+        "InternetGateway": {
+            "Type": "AWS::EC2::InternetGateway",
+            "Properties": {
+                "Tags": [
+
+                    {
+                        "Key": "Name",
+                        "Value": "Internet Gateway"
+                    }
+                ]
+            }
+        },
+        "AttachGateway": {
+            "Type": "AWS::EC2::VPCGatewayAttachment",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "VPC"
+                },
+                "InternetGatewayId": {
+                    "Ref": "InternetGateway"
+                }
+            }
+        },
+        "PublicRouteTable": {
+            "Type": "AWS::EC2::RouteTable",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "VPC"
+                },
+                "Tags": [{
+                    "Key": "Name",
+                    "Value": "Public Route Table"
+                }]
+            }
+        },
+        "PublicRoute": {
+            "Type": "AWS::EC2::Route",
+            "Properties": {
+                "RouteTableId": {
+                    "Ref": "PublicRouteTable"
+                },
+                "DestinationCidrBlock": "0.0.0.0/0",
+                "GatewayId": {
+                    "Ref": "InternetGateway"
+                }
+            }
+        },
+        "Public1SubnetRouteTableAssociation": {
+            "Type": "AWS::EC2::SubnetRouteTableAssociation",
+            "Properties": {
+                "SubnetId": {
+                    "Ref": "PublicSubnet"
+                },
+                "RouteTableId": {
+                    "Ref": "PublicRouteTable"
+                }
+            }
+        },
+        "Public2SubnetRouteTableAssociation": {
+            "Type": "AWS::EC2::SubnetRouteTableAssociation",
+            "Properties": {
+                "SubnetId": {
+                    "Ref": "Public2Subnet"
+                },
+                "RouteTableId": {
+                    "Ref": "PublicRouteTable"
+                }
+            }
+        },
+        "PrivateRouteTable": {
+            "Type": "AWS::EC2::RouteTable",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "VPC"
+                },
+                "Tags": [{
+                    "Key": "Application",
+                    "Value": {
+                        "Ref": "AWS::StackName"
+                    }
+                }, {
+                    "Key": "Name",
+                    "Value": "Private Route Table"
+                }]
+            }
+        },
+        "PrivateSubnetRouteTableAssociation1": {
+            "Type": "AWS::EC2::SubnetRouteTableAssociation",
+            "Properties": {
+                "SubnetId": {
+                    "Ref": "PrivateSubnet1"
+                },
+                "RouteTableId": {
+                    "Ref": "PrivateRouteTable"
+                }
+            }
+        },
+        "PrivateSubnetRouteTableAssociation2": {
+            "Type": "AWS::EC2::SubnetRouteTableAssociation",
+            "Properties": {
+                "SubnetId": {
+                    "Ref": "PrivateSubnet2"
+                },
+                "RouteTableId": {
+                    "Ref": "PrivateRouteTable"
+                }
+            }
+        }
+    },
+    "Outputs": {}
+}
