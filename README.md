@@ -17,7 +17,7 @@ Use [this](/https://raw.githubusercontent.com/cloudacademy/enterprise-fundamenta
 
 #####Connecting to the Active Directory Domain
 
-	To connect to the DC instances via the Remote Desktops gateway you need to add an inbound rule in the RDGWSecurityGroup allowing connections on the HTTPS port (443). You can also simply use the Gateways as Bastion hosts and open an RDP connection direct to them, in this case you don't have to change anything on the Security Groups.
+To connect to the DC instances via the Remote Desktops gateway you need to add an inbound rule in the RDGWSecurityGroup allowing connections on the HTTPS port (443). You can also simply use the Gateways as Bastion hosts and open an RDP connection direct to them, in this case you don't have to change anything on the Security Groups.
 
 Take the Elastic IP from the outputs of the CloudFormation stack and use it to connect to the machines. These are the credentials for the built in Domain Admin account:
 
